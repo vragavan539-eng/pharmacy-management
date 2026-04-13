@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-// ✅ Home removed from sidebar — Landing page தனியா இருக்கு
 const NAV = [
-  { path: '/app',              label: 'Home',          icon: '🏠' },
-  { path: '/app/dashboard',    label: 'Dashboard',     icon: '📊' },
-  { path: '/app/drugs',        label: 'Drugs',         icon: '💊' },
-  { path: '/app/patients',     label: 'Patients',      icon: '👥' },
-  { path: '/app/prescriptions',label: 'Prescriptions', icon: '📋' },
-  { path: '/app/billing',      label: 'Billing',       icon: '💰' },
-  { path: '/app/inventory',    label: 'Inventory',     icon: '⚠️' },
-  { path: '/app/ai',           label: 'AI Features',   icon: '🤖' },
+  { path: '/app',               label: 'Home',          icon: '🏠' },
+  { path: '/app/dashboard',     label: 'Dashboard',     icon: '📊' },
+  { path: '/app/drugs',         label: 'Drugs',         icon: '💊' },
+  { path: '/app/patients',      label: 'Patients',      icon: '👥' },
+  { path: '/app/prescriptions', label: 'Prescriptions', icon: '📋' },
+  { path: '/app/billing',       label: 'Billing',       icon: '💰' },
+  { path: '/app/inventory',     label: 'Inventory',     icon: '⚠️' },
+  { path: '/app/ai',            label: 'AI Features',   icon: '🤖' },
 ];
 
 const PRIMARY = '#1a6b4a';
@@ -24,22 +23,47 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isMobile = window.innerWidth <= 768;
+
+  const sidebarWidth = collapsed ? 64 : 230;
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f0f7f4' }}>
 
+      {/* Mobile Overlay */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 99,
+          }}
+        />
+      )}
+
       {/* Sidebar */}
       <aside style={{
-        width: collapsed ? 64 : 230,
+        width: sidebarWidth,
         background: DARK,
         display: 'flex', flexDirection: 'column',
         position: 'fixed', top: 0, left: 0, height: '100vh',
-        zIndex: 100, transition: 'width 0.2s',
+        zIndex: 100, transition: 'transform 0.25s, width 0.2s',
+        transform: isMobile
+          ? mobileOpen ? 'translateX(0)' : 'translateX(-100%)'
+          : 'translateX(0)',
       }}>
         {/* Logo */}
         <div
-          onClick={() => setCollapsed(c => !c)}
-          style={{ padding: '18px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+          onClick={() => { if (!isMobile) setCollapsed(c => !c); }}
+          style={{
+            padding: '18px 14px',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            display: 'flex', alignItems: 'center', gap: 10,
+            cursor: isMobile ? 'default' : 'pointer',
+          }}
         >
           <div style={{ width: 36, height: 36, borderRadius: 10, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>💊</div>
           {!collapsed && (
@@ -57,6 +81,7 @@ export default function Layout() {
               key={item.path}
               to={item.path}
               end={item.path === '/app'}
+              onClick={() => isMobile && setMobileOpen(false)}
               style={({ isActive }) => ({
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: collapsed ? '11px 0' : '10px 16px',
@@ -89,7 +114,13 @@ export default function Layout() {
           )}
           <button
             onClick={() => { logout(); navigate('/login'); }}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '7px 4px', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: 13, justifyContent: collapsed ? 'center' : 'flex-start' }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              width: '100%', padding: '7px 4px',
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.4)', fontSize: 13,
+              justifyContent: collapsed ? 'center' : 'flex-start',
+            }}
           >
             <span>🚪</span>{!collapsed && 'Sign out'}
           </button>
@@ -97,17 +128,47 @@ export default function Layout() {
       </aside>
 
       {/* Main */}
-      <div style={{ flex: 1, marginLeft: collapsed ? 64 : 230, display: 'flex', flexDirection: 'column', transition: 'margin-left 0.2s' }}>
-        <header style={{ background: '#fff', borderBottom: `1px solid ${BORDER}`, padding: '12px 26px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50 }}>
-          <span style={{ fontSize: 13, color: MUTED }}>
-            {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </span>
+      <div style={{
+        flex: 1,
+        marginLeft: isMobile ? 0 : sidebarWidth,
+        display: 'flex', flexDirection: 'column',
+        transition: 'margin-left 0.2s',
+      }}>
+        {/* Header */}
+        <header style={{
+          background: '#fff',
+          borderBottom: `1px solid ${BORDER}`,
+          padding: '12px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          position: 'sticky', top: 0, zIndex: 50,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Hamburger - mobile only */}
+            {isMobile && (
+              <button
+                onClick={() => setMobileOpen(o => !o)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 22, color: DARK, padding: '0 4px',
+                  lineHeight: 1,
+                }}
+              >
+                ☰
+              </button>
+            )}
+            <span style={{ fontSize: 13, color: MUTED }}>
+              {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#16a34a', background: '#dcfce7', padding: '4px 10px', borderRadius: 20 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} />
             System Online
           </div>
         </header>
-        <main style={{ flex: 1, padding: 26 }}>
+
+        <main style={{ flex: 1, padding: isMobile ? 14 : 26 }}>
           <Outlet />
         </main>
       </div>
