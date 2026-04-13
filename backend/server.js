@@ -19,6 +19,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
+    'https://pharmacy-management-007.vercel.app',
     'https://pharmacy-management-kappa-six.vercel.app',
     process.env.CLIENT_URL,
   ].filter(Boolean),
@@ -47,14 +48,6 @@ app.get('/health', (req, res) => res.json({
   timestamp: new Date().toISOString(),
   env: process.env.NODE_ENV,
 }));
-
-// ── TEMPORARY SEED ROUTE - Remove after seeding! ──────────────────────────────
-app.get('/seed-now', async (req, res) => {
-  const { exec } = require('child_process');
-  exec('node seed.js', { cwd: __dirname }, (err, stdout, stderr) => {
-    res.json({ result: stdout, error: err?.message, stderr });
-  });
-});
 
 app.use((req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found` }));
 
