@@ -17,11 +17,7 @@ const connectDB = async () => {
 const app = express();
 
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://pharmacy-management-007.vercel.app',
-    'https://pharmacy-management-kappa-six.vercel.app',
-  ],
+  origin: true,
   credentials: true,
 }));
 app.use(express.json({ limit: '15mb' }));
