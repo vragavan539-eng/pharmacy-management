@@ -21,8 +21,7 @@ app.use(cors({
     'http://localhost:3000',
     'https://pharmacy-management-007.vercel.app',
     'https://pharmacy-management-kappa-six.vercel.app',
-    process.env.CLIENT_URL,
-  ].filter(Boolean),
+  ],
   credentials: true,
 }));
 app.use(express.json({ limit: '15mb' }));
@@ -69,4 +68,4 @@ const start = async () => {
 
 start();
 
-module.exports = app;
+module.exports = app;s
