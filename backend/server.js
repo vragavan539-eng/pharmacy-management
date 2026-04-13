@@ -44,6 +44,14 @@ app.get('/health', (req, res) => res.json({
   env: process.env.NODE_ENV,
 }));
 
+// Temporary seed route - remove after seeding!
+app.get('/seed-now', async (req, res) => {
+  const { exec } = require('child_process');
+  exec('node seed.js', { cwd: __dirname }, (err, stdout, stderr) => {
+    res.json({ result: stdout, error: err?.message, stderr });
+  });
+});
+
 app.use((req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found` }));
 
 app.use((err, req, res, next) => {
